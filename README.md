@@ -2,7 +2,7 @@
 
 Justin, the JustServe Assistant, is an unofficial Utah Area JustServe pilot. It's a search-and-chat layer over public JustServe.org listings. Sign-ups always happen on JustServe.org.
 
-**Status: everything except the live JustServe.org reader is built.** The finder, chat, tagger, health report, admin page and eval harness run locally against about 20 **made-up sample projects**, each badged SAMPLE. The last missing piece is the code that reads JustServe.org (`src/lib/reader/justserve.ts`). It gets written after the Milestone 0 data spike shows how the site loads its results.
+**Status: the data spike has been run, and the reader is written, but do not point it at live listings yet.** See `docs/data-spike.md`. JustServe's terms of use forbid automatic copying without written permission, and ages and group sizes are missing on most listings. The finder, chat, tagger, health report, admin page, and eval harness still run locally against about 20 **made-up sample projects**, each badged SAMPLE.
 
 ## What's here
 
@@ -23,7 +23,9 @@ Justin, the JustServe Assistant, is an unofficial Utah Area JustServe pilot. It'
 | `config/ranking.json` | Ranking weights and radius settings |
 | `db/schema.sql` | Postgres + PostGIS + pgvector schema (brief §5) |
 | `inputs/` | Scott's input files (currently templates and drafts) |
+| `src/lib/reader/justserve.ts` | Reads the public search the website itself uses (`/api/v2/projects/search`), then each project page. Strips coordinator phone numbers and emails |
 | `scripts/spike.ts` | Milestone 0: browses JustServe.org as a public visitor and records network traffic |
+| `scripts/reader-check.ts` | Checks the reader offline, and optionally reads one small live page |
 | `vercel.json`, `src/app/api/cron/` | Hourly refresh and nightly jobs for Vercel Cron |
 
 ## Run it locally
@@ -45,7 +47,8 @@ Without `ANTHROPIC_API_KEY`, the finder still works using keyword parsing, and t
 
 | Command | What it does | Schedule when deployed |
 | --- | --- | --- |
-| `npm run refresh` | Full refresh from JustServe.org, then tags new or changed projects | Hourly (`/api/cron/refresh`) |
+| `npm run reader:check` | Offline checks of the reader. `--live` reads 10 search hits and 1 project, then discards them. `--db` writes one fake row and restores the samples | — |
+| `npm run refresh` | Full refresh from JustServe.org, then tags new or changed projects. **Do not run until JustServe has given written permission** (`docs/data-spike.md`) | Hourly (`/api/cron/refresh`) |
 | `npm run tag` | Tags only the projects whose content changed | Part of the refresh |
 | `npm run nightly` | Listing-health report and the 90-day chat purge | Nightly (`/api/cron/nightly`) |
 | `npm run tag:check-sheet` | Exports 25 random tagged projects to a CSV to hand-check (Milestone 2) | — |
@@ -75,7 +78,14 @@ The spike needs outbound network access to `www.justserve.org`.
 npm run spike                     # or: npm run spike -- "Orem, UT"
 ```
 
-Raw captures are saved to `docs/spike-output/`, which is git-ignored. They include `robots.txt`, page snapshots, every XHR and fetch request, and the JSON response bodies. The findings go in `docs/data-spike.md` for Scott's go/no-go.
+Raw captures are saved to `docs/spike-output/`, which is git-ignored. They include `robots.txt`, page snapshots, every XHR and fetch request, and the JSON response bodies. The findings are in `docs/data-spike.md`.
+
+The home page never goes quiet (a live connection stays open), so the spike waits for the page to load rather than for all network activity to stop, then opens `/projects?location=…`, which is the public search.
+
+```bash
+npm run reader:check              # no network, no model key
+npm run reader:check -- --live    # one small public read, then discarded
+```
 
 ## Adding a messaging channel (later)
 

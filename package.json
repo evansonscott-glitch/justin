@@ -12,6 +12,7 @@
     "db:setup": "tsx scripts/db-setup.ts",
     "db:seed-samples": "tsx scripts/seed-samples.ts",
     "spike": "tsx scripts/spike.ts",
+    "reader:check": "tsx scripts/reader-check.ts",
     "refresh": "tsx scripts/refresh.ts",
     "tag": "tsx scripts/tag.ts",
     "tag:check-sheet": "tsx scripts/tag-check-sheet.ts",
