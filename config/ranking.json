@@ -1,0 +1,13 @@
+{
+  "default_radius_miles": 10,
+  "widened_radius_miles": 20,
+  "min_results_before_widening": 3,
+  "chat_result_limit": 3,
+  "finder_result_limit": 10,
+  "weights": {
+    "text_match": 0.4,
+    "distance": 0.25,
+    "date_closeness": 0.15,
+    "tag_match": 0.2
+  }
+}

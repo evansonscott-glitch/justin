@@ -1,0 +1,28 @@
+{
+  "_status": "DRAFT — Scott to confirm cities, add stakes, and adjust center/radius.",
+  "name": "Utah County pilot",
+  "timezone": "America/Denver",
+  "center": { "lat": 40.2969, "lng": -111.6946 },
+  "radius_miles": 25,
+  "stakes": [],
+  "cities": [
+    { "name": "Provo", "lat": 40.2338, "lng": -111.6585 },
+    { "name": "Orem", "lat": 40.2969, "lng": -111.6946 },
+    { "name": "Lehi", "lat": 40.3916, "lng": -111.8508 },
+    { "name": "American Fork", "lat": 40.3769, "lng": -111.7958 },
+    { "name": "Pleasant Grove", "lat": 40.3641, "lng": -111.7385 },
+    { "name": "Lindon", "lat": 40.3433, "lng": -111.7208 },
+    { "name": "Vineyard", "lat": 40.2972, "lng": -111.7466 },
+    { "name": "Highland", "lat": 40.425, "lng": -111.7955 },
+    { "name": "Alpine", "lat": 40.4533, "lng": -111.7777 },
+    { "name": "Cedar Hills", "lat": 40.4141, "lng": -111.7585 },
+    { "name": "Saratoga Springs", "lat": 40.3491, "lng": -111.9047 },
+    { "name": "Eagle Mountain", "lat": 40.3141, "lng": -112.0069 },
+    { "name": "Springville", "lat": 40.1652, "lng": -111.6107 },
+    { "name": "Mapleton", "lat": 40.1302, "lng": -111.5785 },
+    { "name": "Spanish Fork", "lat": 40.1149, "lng": -111.6549 },
+    { "name": "Salem", "lat": 40.053, "lng": -111.6735 },
+    { "name": "Payson", "lat": 40.0444, "lng": -111.7321 },
+    { "name": "Santaquin", "lat": 39.9755, "lng": -111.7852 }
+  ]
+}
