@@ -1,0 +1,33 @@
+{
+  "name": "justin",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Justin, the JustServe Assistant — unofficial Utah Area pilot",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "db:setup": "tsx scripts/db-setup.ts",
+    "db:seed-samples": "tsx scripts/seed-samples.ts",
+    "spike": "tsx scripts/spike.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.128.0",
+    "next": "^16.3.6",
+    "pg": "^8.23.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.3",
+    "@types/pg": "^8.23.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "playwright": "1.63",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
