@@ -42,11 +42,15 @@ export interface SearchRequest {
   groupSize?: number;
   limit?: number;
   sessionId?: string;
-  channel?: "finder" | "chat";
+  channel?: "finder" | "chat" | "eval";
+  /** Set false to skip search_log (the eval harness does this). */
+  log?: boolean;
 }
 
 export interface SearchResult {
   parsed: ParsedQuery;
   radiusMiles: number;
   projects: ProjectCard[];
+  /** The query named a kind of service and none of the results match it (they're just nearby/soon). */
+  noTopicMatch: boolean;
 }

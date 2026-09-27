@@ -1,6 +1,7 @@
 -- Justin v0 schema (brief §5). Idempotent: safe to re-run.
 create extension if not exists postgis;
 create extension if not exists vector;
+create extension if not exists pg_trgm;
 
 create table if not exists projects (
   id text primary key,                 -- JustServe project id
@@ -56,9 +57,11 @@ create table if not exists search_log (
   parsed jsonb,
   result_ids text[],
   clicked_id text,
-  channel text,                        -- finder | chat
+  channel text,                        -- finder | chat | eval
+  unmet boolean,                       -- no results, or nothing matched the kind of service asked for
   created_at timestamptz not null default now()
 );
+alter table search_log add column if not exists unmet boolean;
 
 create table if not exists chat_messages (   -- delete after 90 days
   id bigserial primary key,
@@ -78,4 +81,23 @@ create table if not exists health_flags (
   city text,
   created_at timestamptz not null default now(),
   resolved_at timestamptz
+);
+
+create table if not exists reader_runs (
+  id bigserial primary key,
+  started_at timestamptz not null default now(),
+  finished_at timestamptz,
+  source text,
+  fetched int,
+  inserted int,
+  updated int,
+  deactivated int,
+  error text
+);
+
+create table if not exists eval_runs (
+  id bigserial primary key,
+  created_at timestamptz not null default now(),
+  summary jsonb,
+  report_md text
 );

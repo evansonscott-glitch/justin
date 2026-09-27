@@ -11,7 +11,12 @@
     "typecheck": "tsc --noEmit",
     "db:setup": "tsx scripts/db-setup.ts",
     "db:seed-samples": "tsx scripts/seed-samples.ts",
-    "spike": "tsx scripts/spike.ts"
+    "spike": "tsx scripts/spike.ts",
+    "refresh": "tsx scripts/refresh.ts",
+    "tag": "tsx scripts/tag.ts",
+    "tag:check-sheet": "tsx scripts/tag-check-sheet.ts",
+    "nightly": "tsx scripts/nightly.ts",
+    "eval": "tsx scripts/eval.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",

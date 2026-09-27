@@ -148,6 +148,9 @@ export default function FinderPage() {
       {!loading && result && result.projects.length === 0 && (
         <div className="empty">No matching projects. Try a nearby city, a wider date, or fewer filters.</div>
       )}
+      {!loading && result?.noTopicMatch && (
+        <div className="meta">No exact matches for that kind of service. Here are other projects that fit your filters:</div>
+      )}
       {!loading &&
         result?.projects.map((p) => <ProjectCard key={p.id} project={p} onOpen={logClick} />)}
     </div>

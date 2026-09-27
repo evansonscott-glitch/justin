@@ -31,14 +31,31 @@ interface Row {
   days_from_target: number | null;
 }
 
-/** Words from the free-text part of the query, OR-ed into a tsquery. */
+/** Words that describe who/when/where rather than the kind of service. They don't count as topic words. */
+const FILLER = new Set(
+  (
+    "near nearby around close something anything any some thing things stuff want looking find help helping serve service " +
+    "services project projects volunteer volunteers volunteering opportunity opportunities can could would like need our " +
+    "with my kids kid children child family families son daughter wife husband friends youth group groups people person " +
+    "year years old age ages today tonight tomorrow week weekend weekday morning afternoon evening night this next " +
+    "monday tuesday wednesday thursday friday saturday sunday time free fun good easy please utah county city town " +
+    "indoor indoors outdoor outdoors inside outside " +
+    // common English stopwords
+    "the and for are but not you all her was one out his has how its who did get may too use from that " +
+    "have what when where which your they them then than into about just also over only very there here"
+  ).split(" "),
+);
+
+/** Topic words from the query, OR-ed into a tsquery; null when the query names no kind of service. */
 function toTsQuery(text: string): string | null {
-  const words = text
-    .toLowerCase()
+  const cities = pilotArea().cities.map((c) => c.name.toLowerCase());
+  let lower = text.toLowerCase();
+  for (const c of cities) lower = lower.split(c).join(" ");
+  const words = lower
     .replace(/[^a-z0-9\s]/g, " ")
     .split(/\s+/)
-    .filter((w) => w.length > 2);
-  return words.length ? words.join(" | ") : null;
+    .filter((w) => w.length > 2 && !/^\d+$/.test(w) && !FILLER.has(w));
+  return words.length ? [...new Set(words)].join(" | ") : null;
 }
 
 /**
@@ -131,6 +148,8 @@ export async function searchProjects(req: SearchRequest): Promise<SearchResult> 
     rows = await run(radiusMiles);
   }
 
+  // "with my kids", "family" etc. prefer family-friendly projects without hard-filtering the rest.
+  const wantsFamily = /\b(kids?|children|child|family|families|son|daughter)\b/i.test(req.q ?? "") || chips.has("family");
   const w = ranking.weights;
   const maxRank = Math.max(0, ...rows.map((r) => Number(r.text_rank)));
   const scored = rows.map((r) => {
@@ -143,18 +162,31 @@ export async function searchProjects(req: SearchRequest): Promise<SearchResult> 
       tagWanted++;
       if (r.categories?.includes(c)) tagHits++;
     }
+    if (wantsFamily) {
+      tagWanted++;
+      if (r.family_friendly) tagHits++;
+    }
     if (setting) {
       tagWanted++;
       if (r.setting === setting || r.setting === "both") tagHits++;
     }
     const tag = tagWanted ? tagHits / tagWanted : 0;
-    return { r, score: w.text_match * text + w.distance * distance + w.date_closeness * date + w.tag_match * tag };
+    return {
+      r,
+      relevant: text > 0 || tagHits > 0,
+      score: w.text_match * text + w.distance * distance + w.date_closeness * date + w.tag_match * tag,
+    };
   });
   scored.sort((a, b) => b.score - a.score);
 
+  // The query asked for a kind of service and nothing matched it: still show nearby options,
+  // but count it as unmet demand and say so.
+  const asksForTopic = Boolean(tsq) || categories.length > 0;
+  const noTopicMatch = asksForTopic && scored.length > 0 && !scored.some((x) => x.relevant);
   const projects = scored.slice(0, limit).map(({ r }) => toCard(r));
-  await logSearch(req, parsed, projects.map((x) => x.id));
-  return { parsed, radiusMiles, projects };
+  const unmet = projects.length === 0 || noTopicMatch;
+  if (req.log !== false) await logSearch(req, parsed, projects.map((x) => x.id), unmet);
+  return { parsed, radiusMiles, projects, noTopicMatch };
 }
 
 function toCard(r: Row): ProjectCard {
@@ -180,11 +212,11 @@ function toCard(r: Row): ProjectCard {
   };
 }
 
-async function logSearch(req: SearchRequest, parsed: ParsedQuery, ids: string[]) {
+async function logSearch(req: SearchRequest, parsed: ParsedQuery, ids: string[], unmet: boolean) {
   try {
     await db().query(
-      `insert into search_log (session_id, query, parsed, result_ids, channel) values ($1, $2, $3, $4, $5)`,
-      [req.sessionId ?? null, req.q ?? "", JSON.stringify({ ...parsed, chips: req.tags ?? [] }), ids, req.channel ?? "finder"],
+      `insert into search_log (session_id, query, parsed, result_ids, channel, unmet) values ($1, $2, $3, $4, $5, $6)`,
+      [req.sessionId ?? null, req.q ?? "", JSON.stringify({ ...parsed, chips: req.tags ?? [] }), ids, req.channel ?? "finder", unmet],
     );
   } catch (err) {
     console.error("search_log insert failed", err);

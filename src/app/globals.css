@@ -104,3 +104,17 @@ a { color: var(--blue); }
   flex: 1; font-size: 16px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 20px; outline: none;
 }
 .ended { text-align: center; font-size: 13px; color: var(--muted); padding: 8px; }
+
+/* Admin */
+.admin section { margin: 20px 0; }
+.admin h2 { font-size: 18px; margin: 0 0 8px; }
+.admin table { width: 100%; border-collapse: collapse; font-size: 14px; display: block; overflow-x: auto; }
+.admin th, .admin td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.admin th { color: var(--muted); font-weight: bold; white-space: nowrap; }
+.admin details { margin: 6px 0; }
+.admin summary { cursor: pointer; font-weight: bold; }
+.stat-list { padding-left: 18px; margin: 0; line-height: 1.7; }
+.flag-list { list-style: none; padding-left: 8px; margin: 6px 0; }
+.flag-list li { margin: 6px 0; font-size: 14px; }
+.bad { color: var(--orange); font-weight: bold; }
+.report { white-space: pre-wrap; font-size: 12px; background: #f7f7f8; padding: 12px; border-radius: 8px; }

@@ -80,6 +80,7 @@ export interface ToolContext {
   sessionId: string;
   seenProjects: Map<string, ProjectCard>;
   ended: boolean;
+  channel: "chat" | "eval";
 }
 
 /** Runs one tool call and returns its JSON result. Throws on bad input so the caller can return is_error. */
@@ -87,11 +88,20 @@ export async function runTool(name: string, input: unknown, ctx: ToolContext): P
   switch (name) {
     case "search_projects": {
       const { query } = Inputs.search_projects.parse(input);
-      const result = await searchProjects({ q: query, limit: 5, sessionId: ctx.sessionId, channel: "chat" });
+      const result = await searchProjects({
+        q: query,
+        limit: 5,
+        sessionId: ctx.sessionId,
+        channel: ctx.channel,
+        log: ctx.channel !== "eval",
+      });
       for (const p of result.projects) ctx.seenProjects.set(p.id, p);
       return {
         understood_as: result.parsed,
         radius_miles: result.radiusMiles,
+        no_topic_match: result.noTopicMatch
+          ? "None of these match the kind of service asked for; they are just other nearby projects. Say so plainly."
+          : undefined,
         projects: result.projects.map((p) => ({
           id: p.id,
           url: p.url,
